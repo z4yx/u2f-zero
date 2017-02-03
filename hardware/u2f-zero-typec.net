@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source C:/Users/zhang/Documents/u2f-zero/hardware/u2f-zero-typec.sch)
-    (date "2017/2/3 20:50:12")
+    (date "2017/2/3 23:26:50")
     (tool "Eeschema 4.0.5")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -160,7 +160,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 571C3A85))
     (comp (ref J1)
-      (value USBTypeC)
+      (value DX07P024AJ1)
       (footprint footprints:USB-TypeC-Male)
       (datasheet http://www.jae.com/z-en/pdf_download_exec.cfm?param=SJ116680.pdf)
       (libsource (lib discrete) (part USBTypeC))
@@ -306,14 +306,14 @@
         (field (name Reference) F)
         (field (name Value) u2f-fiducial))))
   (libraries
-    (library (logical debug)
-      (uri C:\Users\zhang\Documents\u2f-zero\hardware\library\debug.lib))
-    (library (logical discrete)
-      (uri C:\Users\zhang\Documents\u2f-zero\hardware\library\discrete.lib))
     (library (logical u2f-zero-cache)
-      (uri C:\Users\zhang\Documents\u2f-zero\hardware\u2f-zero-cache.lib))
+      (uri u2f-zero-cache.lib))
     (library (logical u2f-zero-rescue)
-      (uri C:\Users\zhang\Documents\u2f-zero\hardware\u2f-zero-rescue.lib))
+      (uri u2f-zero-rescue.lib))
+    (library (logical discrete)
+      (uri library\discrete.lib))
+    (library (logical debug)
+      (uri library\debug.lib))
     (library (logical device)
       (uri "C:\\Program Files\\KiCad\\share\\kicad\\library\\device.lib")))
   (nets

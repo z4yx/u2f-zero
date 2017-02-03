@@ -33,7 +33,7 @@ LIBS:debug
 LIBS:discrete
 LIBS:siliconlabs
 LIBS:u2f-zero-rescue
-LIBS:u2f-zero-typec-cache
+LIBS:u2f-zero-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
@@ -453,7 +453,7 @@ L USBTypeC J1
 U 1 1 58932C94
 P 9350 5550
 F 0 "J1" H 9400 5450 60  0000 C CNN
-F 1 "USBTypeC" H 9800 6200 60  0000 C CNN
+F 1 "DX07P024AJ1" H 9800 6200 60  0000 C CNN
 F 2 "footprints:USB-TypeC-Male" H 9350 5550 60  0001 C CNN
 F 3 "http://www.jae.com/z-en/pdf_download_exec.cfm?param=SJ116680.pdf" H 9350 5550 60  0001 C CNN
 	1    9350 5550

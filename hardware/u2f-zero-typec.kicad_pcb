@@ -4,7 +4,7 @@
     (links 45)
     (no_connects 5)
     (area 35.174999 28.924999 70.275001 43.575001)
-    (thickness 2)
+    (thickness 0.8)
     (drawings 41)
     (tracks 242)
     (zones 0)
@@ -27,13 +27,13 @@
     (40 Dwgs.User user)
     (41 Cmts.User user)
     (42 Eco1.User user)
-    (43 Eco2.User user hide)
+    (43 Eco2.User user)
     (44 Edge.Cuts user)
     (45 Margin user)
-    (46 B.CrtYd user hide)
-    (47 F.CrtYd user hide)
-    (48 B.Fab user hide)
-    (49 F.Fab user hide)
+    (46 B.CrtYd user)
+    (47 F.CrtYd user)
+    (48 B.Fab user)
+    (49 F.Fab user)
   )
 
   (setup
@@ -618,7 +618,7 @@
     (fp_text reference J1 (at -1.524 2.032 90) (layer F.SilkS)
       (effects (font (size 0.4 0.4) (thickness 0.1)))
     )
-    (fp_text value USBTypeC (at -1.524 -0.508 90) (layer F.Fab) hide
+    (fp_text value DX07P024AJ1 (at -1.524 -0.508 90) (layer F.Fab) hide
       (effects (font (size 0.4 0.4) (thickness 0.1)))
     )
     (fp_line (start 0.875 3.9) (end 1.325 3.6) (layer F.Fab) (width 0.15))
@@ -692,10 +692,10 @@
       (net 29 "Net-(J1-PadSH)"))
     (pad SH smd rect (at -0.014 3.405 90) (size 0.36 1.75) (layers B.Cu B.Paste B.Mask)
       (net 29 "Net-(J1-PadSH)"))
-    (model /Users/zhang/Projects/u2f-zero/hardware/wrlshp/5E216100-C43E.wrl
-      (at (xyz 0 0 0))
-      (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 180))
+    (model k3d-dx07p024aj1-v1.wrl
+      (at (xyz -0.065 0.1624 0.0472))
+      (scale (xyz 0.3937 0.3937 0.3937))
+      (rotate (xyz 180 0 90))
     )
   )
 
