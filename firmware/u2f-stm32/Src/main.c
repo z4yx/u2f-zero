@@ -74,6 +74,7 @@ data struct APP_DATA appdata;
 uint8_t error;
 uint8_t state;
 uint32_t winkc;
+struct u2f_hid_msg hid_msg_buf;
 struct u2f_hid_msg * hid_msg;
 
 /* USER CODE END PV */
@@ -140,7 +141,8 @@ void app_wink(uint32_t c)
 void set_app_u2f_hid_msg(struct u2f_hid_msg * msg )
 {
   state = APP_HID_MSG;
-  hid_msg = msg;
+  hid_msg = &hid_msg_buf;
+  memcpy(hid_msg, msg, sizeof(hid_msg_buf));
 }
 
 void rgb(uint8_t r, uint8_t g, uint8_t b)

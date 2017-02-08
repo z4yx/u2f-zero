@@ -1,24 +1,10 @@
 #include "bsp.h"
 #include "stm32f0xx_hal.h"
 
+
 void u2f_delay(uint32_t ms) {
     HAL_Delay(ms);
 }
-
-void usb_write(uint8_t* buf, uint8_t len)
-{
-    // uint8_t errors = 0;
-    // while (USB_STATUS_OK != (USBD_Write(EP1IN, buf, len, false)))
-    // {
-    //     u2f_delay(2);
-    //     if (errors++ > 30)
-    //     {
-    //         set_app_error(ERROR_USB_WRITE);
-    //         break;
-    //     }
-    // }
-}
-
 
 // Painfully lightweight printing routines
 #ifdef U2F_PRINT

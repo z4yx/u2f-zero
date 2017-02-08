@@ -45,7 +45,7 @@ void usb_write(uint8_t* buf, uint8_t len);
     #define u2f_putx(...)
     #define u2f_putb(...)
     #define u2f_putl(...)
-    #define u2f_putl...(...)
+    #define u2f_putlx(...)
 
     #define putf(...)
     #define dump_hex(...)
