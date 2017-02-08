@@ -1,9 +1,27 @@
 #include "bsp.h"
 #include "stm32f0xx_hal.h"
 
+extern TSC_HandleTypeDef htsc;
 
 void u2f_delay(uint32_t ms) {
     HAL_Delay(ms);
+}
+
+uint8_t U2F_BUTTON_IS_PRESSED(void)
+{
+    uint32_t val;
+
+    HAL_TSC_IODischarge(&htsc, ENABLE);
+    HAL_Delay(1);
+    // HAL_TSC_IODischarge(&htsc, DISABLE); //dup in HAL_TSC_Start
+    HAL_TSC_Start(&htsc);
+    HAL_TSC_PollForAcquisition(&htsc);
+    __HAL_TSC_CLEAR_FLAG(&htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
+
+    // HAL_TSC_GroupGetStatus();
+    val = HAL_TSC_GroupGetValue(&htsc, TSC_GROUP2_IDX);
+
+    return val > TOUCH_BTN_THRESHOLD;
 }
 
 // Painfully lightweight printing routines
@@ -19,7 +37,6 @@ void putf(char c)
     for (i=0; i<190; i++){}
     watchdog();
 }
-
 
 void dump_hex(uint8_t* hex, uint8_t len)
 {

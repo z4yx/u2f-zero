@@ -6,6 +6,8 @@
 #include "descriptors.h"
 #include "app.h"
 
+#define TOUCH_BTN_THRESHOLD 1000
+
 #define get_ms() HAL_GetTick()
 
 uint8_t U2F_BUTTON_IS_PRESSED(void);

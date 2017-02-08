@@ -501,8 +501,8 @@ static void MX_TSC_Init(void)
   htsc.Init.IODefaultMode = TSC_IODEF_OUT_PP_LOW;
   htsc.Init.SynchroPinPolarity = TSC_SYNC_POLARITY_FALLING;
   htsc.Init.AcquisitionMode = TSC_ACQ_MODE_NORMAL;
-  htsc.Init.ChannelIOs = TSC_GROUP2_IO2;
-  htsc.Init.SamplingIOs = TSC_GROUP2_IO1;
+  htsc.Init.ChannelIOs = TSC_GROUP2_IO1;
+  htsc.Init.SamplingIOs = TSC_GROUP2_IO2;
   if (HAL_TSC_Init(&htsc) != HAL_OK)
   {
     Error_Handler();
