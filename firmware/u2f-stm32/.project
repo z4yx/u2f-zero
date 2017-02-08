@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>u2f-stm32</name>
-	<comment></comment>
+	<comment />
 	<projects>
 	</projects>
 	<buildSpec>
@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>tests</name>
+			<type>2</type>
+			<location>PARENT-1-PROJECT_LOC/tests</location>
+		</link>
+		<link>
 			<name>u2f-src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -33,32 +38,32 @@
 		<link>
 			<name>u2f-src/atecc508a.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/atecc508a.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/atecc508a.c</location>
 		</link>
 		<link>
 			<name>u2f-src/cert.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/cert.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/cert.c</location>
 		</link>
 		<link>
 			<name>u2f-src/custom.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/custom.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/custom.c</location>
 		</link>
 		<link>
 			<name>u2f-src/u2f.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/u2f.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/u2f.c</location>
 		</link>
 		<link>
 			<name>u2f-src/u2f_atecc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/u2f_atecc.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/u2f_atecc.c</location>
 		</link>
 		<link>
 			<name>u2f-src/u2f_hid.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/u2f_hid.c</locationURI>
+			<location>PARENT-1-PROJECT_LOC/src/u2f_hid.c</location>
 		</link>
 	</linkedResources>
 </projectDescription>

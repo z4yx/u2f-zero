@@ -46,11 +46,21 @@
 #include "usb_device.h"
 
 /* USER CODE BEGIN Includes */
+#include "app.h"
+#include "i2c.h"
+#include "atecc508a.h"
+#include "eeprom.h"
+#include "bsp.h"
+#include "custom.h"
+#include "u2f.h"
+#include "tests.h"
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+
+TIM_HandleTypeDef htim3;
 
 TSC_HandleTypeDef htsc;
 
@@ -58,6 +68,13 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
+data struct APP_DATA appdata;
+
+uint8_t error;
+uint8_t state;
+uint32_t winkc;
+struct u2f_hid_msg * hid_msg;
 
 /* USER CODE END PV */
 
@@ -68,6 +85,10 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TSC_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM3_Init(void);
+                                    
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+                                
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -76,12 +97,88 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN 0 */
 
+static void init(struct APP_DATA* ap)
+{
+
+  u2f_hid_init();
+  smb_init();
+  atecc_idle();
+
+  // U2F_BUTTON_VAL = 1;
+  state = APP_NOTHING;
+  error = ERROR_NOTHING;
+}
+
+void set_app_error(APP_ERROR_CODE ec)
+{
+  error = ec;
+}
+
+uint8_t get_app_error()
+{
+  return error;
+}
+
+uint8_t get_app_state()
+{
+  return state;
+}
+
+void set_app_state(APP_STATE s)
+{
+  state = s;
+}
+
+void app_wink(uint32_t c)
+{
+#ifdef U2F_SUPPORT_WINK
+  winkc = c;
+  set_app_state(APP_WINK);
+#endif
+}
+
+void set_app_u2f_hid_msg(struct u2f_hid_msg * msg )
+{
+  state = APP_HID_MSG;
+  hid_msg = msg;
+}
+
+void rgb(uint8_t r, uint8_t g, uint8_t b)
+{
+  TIM_OC_InitTypeDef sConfigOC;
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  
+  sConfigOC.Pulse = r;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+  
+  sConfigOC.Pulse = g;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+  
+  sConfigOC.Pulse = b;
+  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
+
+}
+
+#define ms_since(ms,num) (((uint16_t)get_ms() - (ms)) >= num ? ((ms=(uint16_t)get_ms())):0)
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
+  uint16_t ms_heart;
+  uint16_t ms_wink;
+  uint16_t ms_grad;
+  uint8_t winks = 0, light = 1, grad_dir = 0;
+  int8_t grad_inc = 0;
+  int8_t ii;
+  // data uint8_t xdata * clear = 0;
+  data int8_t i;
 
   /* USER CODE END 1 */
 
@@ -99,8 +196,22 @@ int main(void)
   MX_TSC_Init();
   MX_USART2_UART_Init();
   MX_USB_DEVICE_Init();
+  MX_TIM3_Init();
 
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Base_Start(&htim3);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+  rgb_hex(0);
+  init(&appdata);
+  u2f_prints("U2F ZERO\r\n");
+
+  run_tests();
+
+  atecc_setup_init(appdata.tmp);
+
+  rgb_hex(0);
 
   /* USER CODE END 2 */
 
@@ -111,7 +222,115 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+    //TODO: USB recv
+    u2f_hid_check_timeouts();
 
+    switch(state)
+    {
+      case APP_NOTHING:
+        // Flash gradient on LED
+        if (ms_since(ms_grad, 150))
+        {
+          if (light == 16)
+          {
+            grad_dir = 0;
+          }
+          else if (light == 1)
+          {
+            grad_dir = 1;
+          }
+          if (grad_dir)
+            if (U2F_BUTTON_IS_PRESSED())
+              rgb(0,0,light++);
+            else
+              rgb(0,light++,0);
+          else
+            if (U2F_BUTTON_IS_PRESSED())
+              rgb(0,0,light--);
+            else
+              rgb(0,light--,0);
+        }
+        break;
+      case APP_HID_MSG:
+        // HID msg received, pass to protocols
+        if (custom_command(hid_msg))
+        {
+
+        }
+        else
+        {
+          u2f_hid_request(hid_msg);
+        }
+
+        if (state == APP_HID_MSG)
+          state = APP_NOTHING;
+        break;
+#ifdef U2F_SUPPORT_WINK
+      case APP_WINK:
+        // Do wink pattern for USB HID wink request
+        rgb_hex(winkc);
+        light = 1;
+        ms_wink = get_ms();
+        state = _APP_WINK;
+        break;
+      case _APP_WINK:
+
+        if (ms_since(ms_wink,150))
+        {
+          if (light)
+          {
+            light = 0;
+            rgb_hex(winkc);
+          }
+          else
+          {
+            light = 1;
+            rgb_hex(0);
+          }
+          winks++;
+        }
+        if (winks == 5)
+        {
+          winks = 0;
+          state = APP_NOTHING;
+        }
+        break;
+#endif
+    }
+
+    if (error)
+    {
+      u2f_printx("error: ", 1, (uint16_t)error);
+#ifdef U2F_BLINK_ERRORS
+      for (ii=0; ii < 8; ii++)
+      {
+        if (error & (1<<ii))
+        {
+          rgb_hex(U2F_DEFAULT_COLOR_INPUT_SUCCESS);
+        }
+        else
+        {
+          rgb_hex(U2F_DEFAULT_COLOR_ERROR);
+        }
+        u2f_delay(400);
+        rgb_hex(0);
+        u2f_delay(100);
+
+      }
+#else
+      rgb_hex(U2F_DEFAULT_COLOR_ERROR);
+      // wipe ram
+      // for (i=0; i<0x400;i++)
+      // {
+      //   *(clear++) = 0x0;
+      // }
+#endif
+      error = 0;
+      while(!ms_since(ms_heart,500))
+      {
+        watchdog();
+      }
+    }
   }
   /* USER CODE END 3 */
 
@@ -215,6 +434,54 @@ static void MX_I2C1_Init(void)
 
 }
 
+/* TIM3 init function */
+static void MX_TIM3_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 999;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 256;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+
 /* TSC init function */
 static void MX_TSC_Init(void)
 {
@@ -272,32 +539,10 @@ static void MX_USART2_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
-
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : PA6 PA7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PB1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
