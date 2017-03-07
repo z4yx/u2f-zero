@@ -2,6 +2,7 @@
 #include "stm32f0xx_hal.h"
 
 extern TSC_HandleTypeDef htsc;
+extern UART_HandleTypeDef huart2;
 
 void u2f_delay(uint32_t ms) {
     HAL_Delay(ms);
@@ -29,12 +30,7 @@ uint8_t U2F_BUTTON_IS_PRESSED(void)
 
 void putf(char c)
 {
-    uint8_t i;
-    SBUF0 = c;
-    // Blocking delay that works for 115200 baud on this device (<1ms)
-    for (i=0; i<200; i++){}
-    for (i=0; i<200; i++){}
-    for (i=0; i<190; i++){}
+    HAL_UART_Transmit(&huart2,(uint8_t*)&c,1,100);
     watchdog();
 }
 
@@ -53,7 +49,7 @@ void dump_hex(uint8_t* hex, uint8_t len)
 }
 
 
-void u2f_prints(char* d)
+void u2f_prints(const char* d)
 {
     while(*d)
     {

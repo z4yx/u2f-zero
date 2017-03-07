@@ -21,8 +21,8 @@ void usb_write(uint8_t* buf, uint8_t len);
 
     void dump_hex(uint8_t* hex, uint8_t len);
 
-    void u2f_putd(uint32_t i);
-    void u2f_putx(uint32_t i);
+    void u2f_putd(int32_t i);
+    void u2f_putx(int32_t i);
 
 #define u2f_putb(x) u2f_putx((uint8_t) (x))
 #define u2f_putl(x) u2f_putd((uint32_t) (x))
