@@ -51,6 +51,9 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define BOOT0_Pin GPIO_PIN_8
+#define BOOT0_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
   * @file           : usbd_conf.h
-  * @version        : v1.0_Cube
+  * @version        : v2.0_Cube
   * @brief          : Header for usbd_conf file.
   ******************************************************************************
   *
@@ -77,7 +77,7 @@
 /*---------- -----------*/
 #define USBD_SUPPORT_USER_STRING     1
 /*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0
+#define USBD_DEBUG_LEVEL     2
 /*---------- -----------*/
 #define USBD_SELF_POWERED     0
 /*---------- -----------*/

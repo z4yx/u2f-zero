@@ -182,6 +182,16 @@ int main(void)
   // data uint8_t xdata * clear = 0;
   data int8_t i;
 
+  const uintptr_t bootloader = 0x1FFFC400;
+  MX_GPIO_Init();
+  HAL_GPIO_WritePin(BOOT0_GPIO_Port, BOOT0_Pin, GPIO_PIN_SET);
+  __set_MSP(*(__IO uint32_t*) bootloader);
+  void (*SysMemBootJump)(void) = (void (*)(void)) (*((uint32_t *) (bootloader+4)));
+
+//  void (*SysMemBootJump)(void) = (void (*)(void)) 0x1FFFC518; //ref: AN2606 section "STM32F04xxx devices bootloader"
+
+  SysMemBootJump();
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -197,8 +207,8 @@ int main(void)
   MX_I2C1_Init();
   MX_TSC_Init();
   MX_USART2_UART_Init();
-  MX_USB_DEVICE_Init();
   MX_TIM3_Init();
+  MX_USB_DEVICE_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
@@ -206,8 +216,20 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
   rgb_hex(0);
+
+  rgb_hex(0x2030f0);
+  while(1){
+//      rgb_hex(0xff);
+//      HAL_Delay(500);
+//      rgb_hex(0xff00);
+//      HAL_Delay(500);
+//      rgb_hex(0xff0000);
+//      HAL_Delay(500);
+
+  }
   init(&appdata);
   u2f_prints("U2F ZERO\r\n");
+  u2f_putx(SysMemBootJump);
 
   run_tests();
 
@@ -346,7 +368,6 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
-  RCC_CRSInitTypeDef RCC_CRSInitStruct;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -382,21 +403,6 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-    /**Enable the SYSCFG APB clock 
-    */
-  __HAL_RCC_CRS_CLK_ENABLE();
-
-    /**Configures CRS 
-    */
-  RCC_CRSInitStruct.Prescaler = RCC_CRS_SYNC_DIV1;
-  RCC_CRSInitStruct.Source = RCC_CRS_SYNC_SOURCE_USB;
-  RCC_CRSInitStruct.Polarity = RCC_CRS_SYNC_POLARITY_RISING;
-  RCC_CRSInitStruct.ReloadValue = __HAL_RCC_CRS_RELOADVALUE_CALCULATE(48000000,1000);
-  RCC_CRSInitStruct.ErrorLimitValue = 34;
-  RCC_CRSInitStruct.HSI48CalibrationValue = 32;
-
-  HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
-
     /**Configure the Systick interrupt time 
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
@@ -430,6 +436,13 @@ static void MX_I2C1_Init(void)
     /**Configure Analogue filter 
     */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Configure Digital filter 
+    */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -515,8 +528,8 @@ static void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 38400;
-  huart2.Init.WordLength = UART_WORDLENGTH_7B;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
@@ -541,10 +554,22 @@ static void MX_USART2_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
 
+  GPIO_InitTypeDef GPIO_InitStruct;
+
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(BOOT0_GPIO_Port, BOOT0_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : BOOT0_Pin */
+  GPIO_InitStruct.Pin = BOOT0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(BOOT0_GPIO_Port, &GPIO_InitStruct);
 
 }
 
