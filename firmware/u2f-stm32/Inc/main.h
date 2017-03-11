@@ -55,7 +55,7 @@
 #define BOOT0_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define DEBUG_USART_RXBUF_SIZE 64
 /* USER CODE END Private defines */
 
 /**

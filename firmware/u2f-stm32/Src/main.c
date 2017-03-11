@@ -60,6 +60,8 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
+RTC_HandleTypeDef hrtc;
+
 TIM_HandleTypeDef htim3;
 
 TSC_HandleTypeDef htsc;
@@ -77,6 +79,7 @@ uint32_t winkc;
 struct u2f_hid_msg hid_msg_buf;
 struct u2f_hid_msg * hid_msg;
 
+static volatile uint8_t debug_usart_rxbuf[DEBUG_USART_RXBUF_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -87,7 +90,8 @@ static void MX_I2C1_Init(void);
 static void MX_TSC_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
-                                    
+static void MX_RTC_Init(void);
+
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
 
@@ -166,6 +170,31 @@ void rgb(uint8_t r, uint8_t g, uint8_t b)
 
 #define ms_since(ms,num) (((uint16_t)get_ms() - (ms)) >= num ? ((ms=(uint16_t)get_ms())):0)
 
+
+
+/**
+  * @brief  Rx Transfer completed callback
+  * @param  UartHandle: UART handle
+  * @note   This example shows a simple way to report end of DMA Rx transfer, and
+  *         you can add your own implementation.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+    u2f_prints("in\r\n");
+  /* Set transmission flag: trasfer complete*/
+  if(debug_usart_rxbuf[0] == 0x55){
+      u2f_prints("restarting for upgrade\r\n");
+
+      HAL_PWR_EnableBkUpAccess();
+      HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0,0x32f0);
+      HAL_PWR_DisableBkUpAccess();
+
+      HAL_NVIC_SystemReset();
+  }
+  HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
+}
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -182,15 +211,30 @@ int main(void)
   // data uint8_t xdata * clear = 0;
   data int8_t i;
 
-  const uintptr_t bootloader = 0x1FFFC400;
-  MX_GPIO_Init();
-  HAL_GPIO_WritePin(BOOT0_GPIO_Port, BOOT0_Pin, GPIO_PIN_SET);
-  __set_MSP(*(__IO uint32_t*) bootloader);
-  void (*SysMemBootJump)(void) = (void (*)(void)) (*((uint32_t *) (bootloader+4)));
+  hrtc.Instance =RTC;
+  if(HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) ==0x32F0){
+      const uintptr_t bootloader = 0x1FFFC400;
+      MX_GPIO_Init();
+      HAL_GPIO_WritePin(BOOT0_GPIO_Port, BOOT0_Pin, GPIO_PIN_SET);
 
-//  void (*SysMemBootJump)(void) = (void (*)(void)) 0x1FFFC518; //ref: AN2606 section "STM32F04xxx devices bootloader"
+      //clear flag
+      __HAL_RCC_PWR_CLK_ENABLE();
+      HAL_PWR_EnableBkUpAccess();
+      __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+      __HAL_RCC_RTC_ENABLE();
+      HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0,0x0);
+      __HAL_RCC_RTC_DISABLE();
+       HAL_PWR_DisableBkUpAccess();
+      __HAL_RCC_PWR_CLK_DISABLE();
 
-  SysMemBootJump();
+      //jump to bootloader
+      __set_MSP(*(__IO uint32_t*) bootloader);
+      void (*SysMemBootJump)(void) = (void (*)(void)) (*((uint32_t *) (bootloader+4)));
+
+      //  void (*SysMemBootJump)(void) = (void (*)(void)) 0x1FFFC518; //ref: AN2606 section "STM32F04xxx devices bootloader"
+
+      SysMemBootJump();
+  }
 
   /* USER CODE END 1 */
 
@@ -209,6 +253,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM3_Init();
   MX_USB_DEVICE_Init();
+  MX_RTC_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start(&htim3);
@@ -217,6 +262,9 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
   rgb_hex(0);
 
+  HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
+
+  u2f_prints("hello\r\n");
   rgb_hex(0x2030f0);
   while(1){
 //      rgb_hex(0xff);
@@ -229,7 +277,6 @@ int main(void)
   }
   init(&appdata);
   u2f_prints("U2F ZERO\r\n");
-  u2f_putx(SysMemBootJump);
 
   run_tests();
 
@@ -371,10 +418,12 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI48
+                              |RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -394,8 +443,10 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_I2C1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_RTC;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
 
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -443,6 +494,26 @@ static void MX_I2C1_Init(void)
     /**Configure Digital filter 
     */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
+/* RTC init function */
+static void MX_RTC_Init(void)
+{
+
+    /**Initialize RTC Only 
+    */
+  hrtc.Instance = RTC;
+  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
+  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
     Error_Handler();
   }
