@@ -154,8 +154,11 @@ void rgb(uint8_t r, uint8_t g, uint8_t b)
   TIM_OC_InitTypeDef sConfigOC;
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
   
   sConfigOC.Pulse = r;
   HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
@@ -166,6 +169,9 @@ void rgb(uint8_t r, uint8_t g, uint8_t b)
   sConfigOC.Pulse = b;
   HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
 
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 }
 
 #define ms_since(ms,num) (((uint16_t)get_ms() - (ms)) >= num ? ((ms=(uint16_t)get_ms())):0)
@@ -256,25 +262,19 @@ int main(void)
   MX_RTC_Init();
 
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start(&htim3);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
   rgb_hex(0);
 
   HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
 
   u2f_prints("hello\r\n");
-  rgb_hex(0x2030f0);
   while(1){
       U2F_BUTTON_IS_PRESSED();
-//      rgb_hex(0xff);
-//      HAL_Delay(500);
-//      rgb_hex(0xff00);
-//      HAL_Delay(500);
-//      rgb_hex(0xff0000);
+      rgb_hex(0xff);
       HAL_Delay(500);
-
+      rgb_hex(0xff00);
+      HAL_Delay(500);
+      rgb_hex(0xff0000);
+      HAL_Delay(500);
   }
   init(&appdata);
   u2f_prints("U2F ZERO\r\n");
@@ -531,9 +531,9 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 999;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 256;
+  htim3.Init.Period = 257;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -548,7 +548,7 @@ static void MX_TIM3_Init(void)
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
