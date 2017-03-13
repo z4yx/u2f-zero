@@ -19,8 +19,11 @@ uint8_t U2F_BUTTON_IS_PRESSED(void)
     HAL_TSC_PollForAcquisition(&htsc);
     __HAL_TSC_CLEAR_FLAG(&htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
 
-    // HAL_TSC_GroupGetStatus();
+//    val = HAL_TSC_GroupGetStatus(&htsc, TSC_GROUP2_IDX);
+//    u2f_printlx("stat:",1,val);
+
     val = HAL_TSC_GroupGetValue(&htsc, TSC_GROUP2_IDX);
+//    u2f_printlx("btn:",1,val);
 
     return val > TOUCH_BTN_THRESHOLD;
 }

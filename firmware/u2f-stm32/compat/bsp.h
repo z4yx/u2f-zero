@@ -6,7 +6,7 @@
 #include "descriptors.h"
 #include "app.h"
 
-#define TOUCH_BTN_THRESHOLD 1000
+#define TOUCH_BTN_THRESHOLD 0x1500
 
 #define get_ms() HAL_GetTick()
 
