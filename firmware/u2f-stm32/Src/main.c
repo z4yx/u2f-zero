@@ -191,16 +191,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
   /* Set transmission flag: trasfer complete*/
   if(debug_usart_rxbuf[0] == 0x55){
       u2f_prints("restarting for upgrade\r\n");
-
-      HAL_PWR_EnableBkUpAccess();
-      HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0,0x32f0);
-      HAL_PWR_DisableBkUpAccess();
-
-      HAL_NVIC_SystemReset();
+      reboot_to_bootloader();
   }
   HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
 }
 
+/* Retargeting functions for gcc-arm-embedded */
+int _write (int fd, char *ptr, int len)
+{
+  /* Write "len" of char from "ptr" to file id "fd"
+   * Return number of char written.
+   * Need implementing with UART here. */
+  HAL_UART_Transmit(&huart2, (uint8_t*)ptr, len, 1000);
+  return len;
+}
 /* USER CODE END 0 */
 
 int main(void)
@@ -264,18 +268,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   rgb_hex(0);
 
+  //for debug only!
   HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
 
-  u2f_prints("hello\r\n");
-  while(1){
-      U2F_BUTTON_IS_PRESSED();
-      rgb_hex(0xff);
-      HAL_Delay(500);
-      rgb_hex(0xff00);
-      HAL_Delay(500);
-      rgb_hex(0xff0000);
-      HAL_Delay(500);
-  }
   init(&appdata);
   u2f_prints("U2F ZERO\r\n");
 

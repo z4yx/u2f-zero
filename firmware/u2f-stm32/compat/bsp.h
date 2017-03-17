@@ -17,6 +17,8 @@ uint8_t U2F_BUTTON_IS_PRESSED(void);
 void u2f_delay(uint32_t ms);
 void usb_write(uint8_t* buf, uint8_t len);
 
+void reboot_to_bootloader(void);
+
 #ifdef U2F_PRINT
 
     void dump_hex(uint8_t* hex, uint8_t len);

@@ -3,6 +3,7 @@
 
 extern TSC_HandleTypeDef htsc;
 extern UART_HandleTypeDef huart2;
+extern RTC_HandleTypeDef hrtc;
 
 void u2f_delay(uint32_t ms) {
     HAL_Delay(ms);
@@ -26,6 +27,15 @@ uint8_t U2F_BUTTON_IS_PRESSED(void)
 //    u2f_printlx("btn:",1,val);
 
     return val > TOUCH_BTN_THRESHOLD;
+}
+
+void reboot_to_bootloader(void)
+{
+    HAL_PWR_EnableBkUpAccess();
+    HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0,0x32f0);
+    HAL_PWR_DisableBkUpAccess();
+
+    HAL_NVIC_SystemReset();
 }
 
 // Painfully lightweight printing routines

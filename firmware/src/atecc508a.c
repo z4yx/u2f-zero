@@ -514,7 +514,7 @@ static void compute_key_hash(uint8_t * key, uint8_t * mask, int slot)
 void atecc_setup_init(uint8_t * buf)
 {
 	// 13s watchdog
-	WDTCN = 7;
+//	WDTCN = 7;
 	dump_config(buf);
 	if (!is_config_locked(buf))
 	{
@@ -672,8 +672,9 @@ void atecc_setup_device(struct config_msg * msg)
 				usb_write((uint8_t*)&usbres, HID_PACKET_SIZE);
 				u2f_delay(20);
 				 // Write R0 and issue a software reset
-				 *((uint8_t SI_SEG_DATA *)0x00) = 0xA5;
-				 RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET;
+//				 *((uint8_t SI_SEG_DATA *)0x00) = 0xA5;
+//				 RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET;
+				reboot_to_bootloader();
 			}
 			break;
 		default:
