@@ -348,7 +348,7 @@ uint32_t u2f_count()
 	atecc_send_recv(ATECC_CMD_COUNTER,
 			ATECC_COUNTER_INC, ATECC_COUNTER0,NULL,0,
 			appdata.tmp, sizeof(appdata.tmp), &res);
-	return le32toh(*(uint32_t*)res.buf);
+	return res.buf[0]|((uint32_t)res.buf[1]<<8)|((uint32_t)res.buf[1]<<16)|((uint32_t)res.buf[1]<<24);
 }
 
 extern uint16_t __attest_size;

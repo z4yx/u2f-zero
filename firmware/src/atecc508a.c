@@ -46,8 +46,8 @@ int8_t atecc_send(uint8_t cmd, uint8_t p1, uint16_t p2,
 	params[1] = 7+len;
 	params[2] = cmd;
 	params[3] = p1;
-	params[4] = ((uint8_t*)&p2)[1];
-	params[5] = ((uint8_t* )&p2)[0];
+	params[4] = ((uint8_t*)&p2)[0];
+	params[5] = ((uint8_t* )&p2)[1];
 
 	smb_set_ext_write(buf, len);
 	smb_write( ATECC508A_ADDR, params, sizeof(params));
@@ -73,7 +73,7 @@ void atecc_wake()
 	smb_write( ATECC508A_ADDR, "\0\0", 2);
 }
 
-#define PKT_CRC(buf, pkt_len) (htole16(*((uint16_t*)(buf+pkt_len-2))))
+#define PKT_CRC(buf, pkt_len) (buf[pkt_len-2]|((uint16_t)buf[pkt_len-1]<<8))
 
 int8_t atecc_recv(uint8_t * buf, uint8_t buflen, struct atecc_response* res)
 {
@@ -586,7 +586,7 @@ void atecc_setup_device(struct config_msg * msg)
 			usbres.buf[0] = 1;
 			break;
 		case U2F_CONFIG_LOCK:
-			crc = *(uint16_t*)msg->buf;
+			crc = msg->buf[1]|((uint16_t)msg->buf[0]<<8);
 			usbres.buf[0] = 1;
 			u2f_printx("got crc: ",1,crc);
 
