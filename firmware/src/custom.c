@@ -78,7 +78,6 @@ uint8_t custom_command(struct u2f_hid_msg * msg)
 
 			break;
 #endif
-#ifdef U2F_SUPPORT_BOOTLOADER
 		case U2F_CONFIG_BOOTLOADER:
 
 			atecc_send_recv(ATECC_CMD_READ,
@@ -87,8 +86,7 @@ uint8_t custom_command(struct u2f_hid_msg * msg)
 
 			if (res.buf[0] == 0xff)
 			{
-				*((uint8_t SI_SEG_DATA *)0x00) = 0xA5;
-				RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET;
+			    reboot_to_bootloader();
 			}
 
 
@@ -102,7 +100,6 @@ uint8_t custom_command(struct u2f_hid_msg * msg)
 					appdata.tmp, sizeof(appdata.tmp), &res);
 
 			break;
-#endif
 		default:
 			return 0;
 	}
