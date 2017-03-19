@@ -466,7 +466,7 @@ static uint8_t hid_u2f_parse(struct u2f_hid_msg* req)
 			break;
 #endif
 		default:
-			set_app_error(ERROR_HID_INVALID_CMD);
+			// set_app_error(ERROR_HID_INVALID_CMD);
 			stamp_error(hid_layer.current_cid, ERR_INVALID_CMD);
 			u2f_printb("invalid cmd: ",1,hid_layer.current_cmd);
 	}
