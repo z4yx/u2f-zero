@@ -194,8 +194,11 @@ static int8_t CUSTOM_HID_OutEvent_FS  (uint8_t event_idx, uint8_t state)
 void usb_write(uint8_t* buf, uint8_t len)
 {
     uint8_t errors = 0;
-    while (USBD_OK != (USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, buf, len)))
-    {
+    USBD_CUSTOM_HID_HandleTypeDef     *hhid = (USBD_CUSTOM_HID_HandleTypeDef*)hUsbDeviceFS.pClassData;
+    while (hhid->state != CUSTOM_HID_IDLE
+            || USBD_OK != (USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, buf, len))) {
+      
+        // printf("retry %d\r\n", errors);
         u2f_delay(2);
         if (errors++ > 30)
         {
