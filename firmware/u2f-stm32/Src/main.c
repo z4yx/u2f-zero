@@ -212,9 +212,9 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
-  uint16_t ms_heart;
-  uint16_t ms_wink;
-  uint16_t ms_grad;
+  uint16_t ms_heart=0;
+  uint16_t ms_wink=0;
+  uint16_t ms_grad=0;
   uint8_t winks = 0, light = 1, grad_dir = 0;
   int8_t grad_inc = 0;
   int8_t ii;
@@ -289,7 +289,6 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-    //TODO: USB recv
     u2f_hid_check_timeouts();
 
     switch(state)
