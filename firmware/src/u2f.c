@@ -46,7 +46,8 @@ static int16_t u2f_authenticate(struct u2f_authenticate_request * req, uint8_t c
 
 void u2f_request(struct u2f_request_apdu * req)
 {
-    uint16_t * rcode = (uint16_t *)req;
+    uint16_t _rcode;
+    uint16_t * rcode = &_rcode;
     uint32_t len = ((req->LC3) | ((uint32_t)req->LC2 << 8) | ((uint32_t)req->LC1 << 16));
 
     u2f_response_start();
@@ -96,6 +97,7 @@ void u2f_request(struct u2f_request_apdu * req)
     }
 
     end:
+    *rcode = htobe16(*rcode);
     u2f_response_writeback((uint8_t*)rcode,2);
     u2f_response_flush();
 }
@@ -175,6 +177,7 @@ static int16_t u2f_authenticate(struct u2f_authenticate_request * req, uint8_t c
 	}
 
 	count = u2f_count();
+	count = htobe32(count);
 
     u2f_sha256_start();
     u2f_sha256_update(req->app,32);

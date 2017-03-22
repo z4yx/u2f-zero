@@ -8,6 +8,11 @@
 
 #define TOUCH_BTN_THRESHOLD 0x1500
 
+static inline uint16_t htobe16(uint16_t x) {return (x>>8)&0xff | (x<<8)&0xff00;}
+static inline uint32_t htobe32(uint32_t x) {
+    return (x>>24)&0xff | (x>>8)&0xff00 | (x<<8)&0xff0000 | (x<<24)&0xff000000;
+}
+
 #define get_ms() HAL_GetTick()
 
 uint8_t U2F_BUTTON_IS_PRESSED(void);
