@@ -24,9 +24,9 @@ uint8_t U2F_BUTTON_IS_PRESSED(void)
 //    u2f_printlx("stat:",1,val);
 
     val = HAL_TSC_GroupGetValue(&htsc, TSC_GROUP2_IDX);
-//    u2f_printlx("btn:",1,val);
+    // printf("btn:%d\r\n",val);
 
-    return val > TOUCH_BTN_THRESHOLD;
+    return val < TOUCH_BTN_THRESHOLD;
 }
 
 void reboot_to_bootloader(void)
