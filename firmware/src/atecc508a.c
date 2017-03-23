@@ -146,16 +146,21 @@ int8_t atecc_send_recv(uint8_t cmd, uint8_t p1, uint16_t p2,
 	{
 		u2f_delay(10);
 		errors++;
+		printf("atecc_send errors=%d\r\n",errors);
 		if (errors > 8)
 		{
+		    u2f_prints("atecc_send error");
 			return -1;
 		}
 	}
+	// u2f_delay(10);
 	while(atecc_recv(rx,rxlen, res) == -1)
 	{
 		errors++;
+        printf("atecc_recv errors=%d %d\r\n",errors,get_app_error());
 		if (errors > 5)
 		{
+            u2f_prints("atecc_recv error");
 			return -2;
 		}
 		switch(get_app_error())
@@ -452,6 +457,7 @@ int atecc_prep_encryption()
 		u2f_prints("pass through to tempkey failed\r\n");
 		return -1;
 	}
+	// u2f_delay(100);
 	if( atecc_send_recv(ATECC_CMD_GENDIG,
 			ATECC_RW_DATA, U2F_MASTER_KEY_SLOT, NULL, 0,
 			appdata.tmp, 40, &res) != 0)
@@ -478,6 +484,7 @@ int atecc_privwrite(uint16_t keyslot, uint8_t * key, uint8_t * mask, uint8_t * d
 	}
 	memmove(appdata.tmp+36, digest, 32);
 
+	// u2f_delay(100);
 	if( atecc_send_recv(ATECC_CMD_PRIVWRITE,
 			ATECC_PRIVWRITE_ENC, keyslot, appdata.tmp, 68,
 			appdata.tmp, 40, &res) != 0)

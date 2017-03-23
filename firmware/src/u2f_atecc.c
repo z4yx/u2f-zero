@@ -71,7 +71,13 @@ int8_t u2f_get_user_feedback()
 	uint32_t t;
 	u2f_delay(1);
 	t = get_ms();
+	// static uint8_t consumed;
+	// uint8_t is_consumed = consumed;
+	// consumed = 1;
+	// return is_consumed;/////debug
+	printf("waiting for release\r\n");
 	while(U2F_BUTTON_IS_PRESSED()){}
+	printf("waiting for user feedback...\r\n");
 	while(!U2F_BUTTON_IS_PRESSED())
 	{
 		// turn red

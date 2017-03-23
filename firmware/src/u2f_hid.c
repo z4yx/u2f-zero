@@ -261,6 +261,7 @@ static void del_cid(uint32_t cid)
 static uint8_t errbuf[HID_PACKET_SIZE];
 static void stamp_error(uint32_t cid, uint8_t err)
 {
+	printf("stamp_error: %x %x\r\n", cid, err);
 
 	struct u2f_hid_msg * res = (struct u2f_hid_msg *)errbuf;
 	memset(errbuf,0,sizeof(errbuf));
@@ -580,6 +581,7 @@ void u2f_hid_request(struct u2f_hid_msg* req)
 
 	if ((req->pkt.init.cmd & TYPE_INIT) && !cid->busy)
 	{
+		printf("=^\r\n");
 		cid->last_cmd = req->pkt.init.cmd;
 		hid_layer.current_cmd = req->pkt.init.cmd;
 		last_seq = -1;
