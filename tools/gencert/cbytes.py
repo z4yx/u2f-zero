@@ -35,6 +35,7 @@ if '-s' in sys.argv:
 
 print('// generated')
 print('#include <stdint.h>')
+print('#include "bsp.h"')
 print()
 print('code uint8_t __attest[] = \n%s;' % c_str)
 print('const uint16_t __attest_size = sizeof(__attest)-1;')
