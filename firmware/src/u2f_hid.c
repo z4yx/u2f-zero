@@ -77,7 +77,7 @@ static struct hid_layer_param
 	// total length of response in bytes
 	uint16_t res_len;
 
-	#define BUFFER_SIZE 270
+	#define BUFFER_SIZE 1024
 	uint8_t buffer[BUFFER_SIZE];
 
 } hid_layer;

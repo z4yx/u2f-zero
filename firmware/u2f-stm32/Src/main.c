@@ -196,6 +196,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
   HAL_UART_Receive_IT(&huart2, (uint8_t *)debug_usart_rxbuf, 1);
 }
 
+#ifdef U2F_PRINT
 /* Retargeting functions for gcc-arm-embedded */
 int _write (int fd, char *ptr, int len)
 {
@@ -205,6 +206,7 @@ int _write (int fd, char *ptr, int len)
   HAL_UART_Transmit(&huart2, (uint8_t*)ptr, len, 1000);
   return len;
 }
+#endif
 /* USER CODE END 0 */
 
 int main(void)

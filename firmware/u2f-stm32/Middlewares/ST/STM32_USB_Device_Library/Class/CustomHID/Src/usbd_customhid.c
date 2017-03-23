@@ -144,7 +144,7 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[USB_CUSTOM_HID_CONFIG_DESC_
   0x01,         /*bConfigurationValue: Configuration value*/
   0x00,         /*iConfiguration: Index of string descriptor describing
   the configuration*/
-  0xC0,         /*bmAttributes: bus powered */
+  0x80,         /*bmAttributes: bus powered */
   0x32,         /*MaxPower 100 mA: this current is used for detecting Vbus*/
   
   /************** Descriptor of CUSTOM HID interface ****************/
@@ -178,7 +178,7 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[USB_CUSTOM_HID_CONFIG_DESC_
   0x03,          /*bmAttributes: Interrupt endpoint*/
   CUSTOM_HID_EPIN_SIZE, /*wMaxPacketSize: 2 Byte max */
   0x00,
-  0x20,          /*bInterval: Polling Interval (20 ms)*/
+  0x02,          /*bInterval: Polling Interval (2 ms)*/
   /* 34 */
   
   0x07,	         /* bLength: Endpoint Descriptor size */
@@ -187,7 +187,7 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[USB_CUSTOM_HID_CONFIG_DESC_
   0x03,	/* bmAttributes: Interrupt endpoint */
   CUSTOM_HID_EPOUT_SIZE,	/* wMaxPacketSize: 2 Bytes max  */
   0x00,
-  0x20,	/* bInterval: Polling Interval (20 ms) */
+  0x14,	/* bInterval: Polling Interval (20 ms) */
   /* 41 */
 } ;
 
