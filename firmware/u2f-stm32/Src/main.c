@@ -80,6 +80,7 @@ struct u2f_hid_msg hid_msg_buf;
 struct u2f_hid_msg * hid_msg;
 
 static volatile uint8_t debug_usart_rxbuf[DEBUG_USART_RXBUF_SIZE];
+extern char USB_SERIAL_NUMBER_DEF[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -246,6 +247,18 @@ int main(void)
       //  void (*SysMemBootJump)(void) = (void (*)(void)) 0x1FFFC518; //ref: AN2606 section "STM32F04xxx devices bootloader"
 
       SysMemBootJump();
+  }
+  //build USB serial number by unique chip ID
+  for (int word = 0; word < 3; ++word)
+  {
+    uint32_t val = STM32_UUID[word];
+    for (int hb = 0; hb < 8; ++hb)
+    {
+      char ch = val & 0xf;
+      ch = (ch < 10) ? ch + '0' : ch - 10 + 'A';
+      USB_SERIAL_NUMBER_DEF[23-(word*8+hb)] = ch;
+      val >>= 4;
+    }
   }
 
   /* USER CODE END 1 */

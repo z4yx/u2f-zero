@@ -56,6 +56,7 @@
 
 /* USER CODE BEGIN Private defines */
 #define DEBUG_USART_RXBUF_SIZE 64
+#define STM32_UUID ((uint32_t *)0x1FFFF7AC)
 /* USER CODE END Private defines */
 
 /**

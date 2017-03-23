@@ -76,7 +76,8 @@
 #define USBD_INTERFACE_STRING_FS     "Custom HID Interface"
 
 /* USER CODE BEGIN 0 */
-
+char USB_SERIAL_NUMBER_DEF[96/8*2+1]; //96-bit unique chip ID
+#define USBD_SERIALNUMBER_STRING_FS USB_SERIAL_NUMBER_DEF
 /* USER CODE END 0*/
 /**
   * @}
