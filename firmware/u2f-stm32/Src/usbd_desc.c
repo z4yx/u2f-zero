@@ -68,7 +68,7 @@
   */ 
 #define USBD_VID     4292
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
+#define USBD_MANUFACTURER_STRING     "TUNA"
 #define USBD_PID_FS     35535
 #define USBD_PRODUCT_STRING_FS     "U2F-TypeC"
 #define USBD_SERIALNUMBER_STRING_FS     "00000000001A"
