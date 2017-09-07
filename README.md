@@ -13,7 +13,7 @@ It ends up being $35 for programmer and ~$5/board.  The token should be durable 
 
 Check out [the wiki](https://github.com/conorpp/u2f-zero/wiki) for more on how to [build your own](https://github.com/conorpp/u2f-zero/wiki/Building-a-U2F-Token).
 
-![](http://i.imgur.com/s8VcUNT.jpg)
+
 
 Security Overview
 -----------------
@@ -23,6 +23,11 @@ The security level is about the same as a modern car key.  Any secret informatio
 However, side channel leakage is an unsolved problem in industry and academia.  So for well equipped adversaries that can make targetted attacks and get physical access, secret information leakage is possible.  Any other hardware token that claims it's "impenetrable" or otherwise totally secure is *still* vulnerable to physical side channels and it's important to acknowledge.  However, most people don't worry about targeted attacks from well equipped adversaries.
 
 For more information about U2F Zero's secure implementation and the problem of side channels, check out [the wiki](https://github.com/conorpp/u2f-zero/wiki/Security-Overview).
+
+Support
+--------
+
+Support this project by purchasing or sharing [U2F Zero on Amazon](https://www.amazon.com/U2F-Zero/dp/B01L9DUPK6/ref=lp_15603989011_1_1?srs=15603989011&ie=UTF8&qid=1501811252&sr=8-1).
 
 
 License
